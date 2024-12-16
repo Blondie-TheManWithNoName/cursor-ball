@@ -20,30 +20,15 @@ export default function Ball({
   const { speed, sizeAnimation } = useCursorBall({ sticky: sticky });
   const mousePosition = useMousePosition();
 
-  const textDuration = 1;
-  const moveDuration = 0.5;
+  const textDuration = 0.01;
+  const fadeDuration = 0.8; // [0, 1]
+  const moveDuration = 0.25;
   const itemHeight = 2.5; // Height of each item in rem
   const items = ["Hola", "Hello", "Hej", "Bonjour", "Ciao", "Hallo"];
   //   const items = ["1", "2", "3", "4"];
   const animationDuration =
     items.length * textDuration + items.length * moveDuration;
   const totalHeight = items.length * itemHeight;
-
-  //   useEffect(() => {
-  //     console.log(
-  //       Array.from({ length: items.length + items.length + 1 }, (_, i) => {
-  //         if (i % 2 === 0) {
-  //           return (
-  //             Math.floor(i / 2) * textDuration + Math.floor(i / 2) * moveDuration
-  //           );
-  //         } else {
-  //           return (
-  //             Math.ceil(i / 2) * textDuration + Math.floor(i / 2) * moveDuration
-  //           );
-  //         }
-  //       })
-  //     );
-  //   }, [duration]);
 
   return (
     <motion.div
@@ -150,9 +135,9 @@ export default function Ball({
                   //   },
 
                   duration: animationDuration,
-                  //   ease: "easeInOut",
+                  ease: "easeInOut",
                   //   ease: "backOut",
-                  ease: [0.68, -0.6, 0.32, 1.6],
+                  //   ease: [0.68, -0.6, 0.32, 1.6],
                   //   type: "spring",
                   //   bounce: 1,
                   //   stiffness: 300,
@@ -199,77 +184,20 @@ export default function Ball({
                 }}
               >
                 {items.concat(items[0]).map((text, index) => {
-                  // Debugging the current `index` and calculated times
-
-                  //   Calculate the `times` array for each item
-                  //   const start =
-                  //     Math.ceil(index / 2) * textDuration +
-                  //     Math.floor(index / 2) * moveDuration;
-
-                  const start =
-                    index * textDuration +
-                    Math.max(index - 1, 0) * moveDuration;
-                  //   console.log(
-                  //     "index",
-                  //     index, // Use the actual index here
-                  //     "[" + 0 + ",",
-                  //     start + ",",
-                  //     index=== items.length ? animationDuration: start + index * moveDuration + ",", // prettier-ignore
-                  //     index=== items.length ? animationDuration : start + textDuration +index * moveDuration * moveDuration +",", // prettier-ignore
-                  //     index=== items.length ? animationDuration : start  + textDuration + moveDuration + index * moveDuration+ ",", // prettier-ignore
-                  //     animationDuration + "]"
-                  //   );
-
-                  //   console.log(
-                  //     "[" + 0 + ",",
-                  //     start + ",",
-                  //     index=== items.length ? 1: (start + moveDuration) + ",", // prettier-ignore
-                  //     index=== items.length ? 1: (start + textDuration + moveDuration) + ",", // prettier-ignore
-                  //     index=== items.length ? 1: (start + textDuration + moveDuration + moveDuration)  + ",", // prettier-ignore
-                  //     animationDuration + "]"
-                  //   );
-
-                  //   GOODOGOODOGOOOD
-                  //   const times = [
-                  //     0,
-                  //     start / animationDuration,
-                  //     index=== items.length ? 1: (start + index * moveDuration) / animationDuration, // prettier-ignore
-                  //     index=== items.length ? 1: (start + textDuration + index * moveDuration * moveDuration) / animationDuration, // prettier-ignore
-                  //     index=== items.length ? 1: (start + textDuration + moveDuration + index * moveDuration) / animationDuration, // prettier-ignore
-                  //     1,
-                  //   ];
-
-                  // NAH THIS IS THE GOOD ONE
-                  //   const times = [
-                  //     0,
-                  //     start / animationDuration,
-                  //     index=== items.length ? 1:  index===0 ? (start)/ animationDuration: (start + moveDuration)/ animationDuration, // prettier-ignore
-                  //     index=== items.length ? 1: index===0 ? (start + textDuration)/ animationDuration: (start + textDuration + moveDuration) / animationDuration, // prettier-ignore
-                  //     index=== items.length ? 1:  index===0 ? (start + textDuration + moveDuration)/ animationDuration: (start + textDuration + moveDuration + moveDuration) / animationDuration, // prettier-ignore
-                  //     1,
-                  //   ];
+                  // prettier-ignore
+                  const fadeIn = index * textDuration + (index - 1) * moveDuration
+                  const showIn = fadeIn + moveDuration;
+                  const showOut = showIn + textDuration;
+                  const fadeOut = showOut + moveDuration * fadeDuration;
 
                   const times = [
                     0,
-                    index===0 ? start/animationDuration : (start + moveDuration * 0.25) / animationDuration, // prettier-ignore
-                    index=== items.length ? 1:  index===0 ? (start) / animationDuration: (start + moveDuration)/ animationDuration, // prettier-ignore
-                    index=== items.length ? 1: index===0 ? (start + textDuration)/ animationDuration: (start + textDuration + moveDuration) / animationDuration, // prettier-ignore
-                    index=== items.length ? 1:  index===0 ? (start + textDuration + moveDuration  * 0.75)/ animationDuration: (start + textDuration + moveDuration + moveDuration * 0.75) / animationDuration, // prettier-ignore
+                    Math.max((fadeIn + moveDuration * (1 - fadeDuration)) / animationDuration, 0), // prettier-ignore
+                    showIn / animationDuration,
+                    Math.min(showOut / animationDuration, 1),
+                    Math.min(fadeOut / animationDuration, 1),
                     1,
                   ];
-
-                  //   const times = [
-                  //     0,
-                  //     start / (animationDuration + moveDuration),
-                  //     (start + moveDuration) / (animationDuration + moveDuration),
-                  //     index=== items.length ? 1 : (start + moveDuration + textDuration) /(animationDuration + moveDuration), // prettier-ignore
-                  //     index === items.length ? 1: (start + moveDuration + textDuration + moveDuration) / (animationDuration + moveDuration), // prettier-ignore
-                  //     1,
-                  //   ];
-
-                  const normalizedTimes = times.map((t) =>
-                    Math.min(Math.max(t, 0), 1)
-                  );
 
                   return (
                     <motion.div
@@ -277,7 +205,7 @@ export default function Ball({
                       transition={{
                         repeat: Infinity,
                         duration: animationDuration,
-                        times: normalizedTimes, // Use normalized times
+                        times: times,
                         ease: "linear",
                       }}
                       animate={{
