@@ -1,7 +1,8 @@
 "use client";
 
-import React, { use, useEffect, useRef } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 
+import FillFrame from "./FillFrame";
 import MagneticFramer from "./MagneticFramer";
 import { useCursorBall } from "../hooks/useCursorBall";
 import { useCursorBallContext } from "../contexts/CursorBallContext";
@@ -9,6 +10,8 @@ import useWindowSize from "../hooks/listeners/useWindowSize";
 
 export default function Home() {
   const windowSize = useWindowSize();
+  const [scaleButton, setScaleButton] = useState(1);
+
   const { animateBall } = useCursorBall();
   const {
     setBallSize,
@@ -16,6 +19,7 @@ export default function Home() {
     setCursorBall,
     setBallPos,
     setBlockBallPos,
+    setBallRounded,
   } = useCursorBall();
 
   // useEffect(() => {
@@ -74,13 +78,18 @@ export default function Home() {
           </div>
         </MagneticFramer>
         {/* </div> */}
+
         <div
           className="w-full h-full bg-green-400"
           onMouseEnter={() => {
-            setBallSize(100);
+            setBallSize(200);
             setBallText("Hola");
+            // setBallRounded(false);
           }}
-          onMouseLeave={() => setBallSize(75)}
+          onMouseLeave={() => {
+            // setBallRounded(true);
+            setBallSize(75);
+          }}
         ></div>
         <div
           className="w-full h-full bg-green-400"
@@ -90,6 +99,20 @@ export default function Home() {
           }}
           onMouseLeave={() => setBallSize(75)}
         ></div>
+        <div className="w-full h-full bg-white flex items-center justify-center">
+          <FillFrame
+            className={`border-[1px] border-gray-600 rounded-full flex items-center justify-center text-center px-10 py-2 cursor-pointer ease-[cubic-bezier(0.36, 0, 0.66, -0.56)] duration-200`}
+            // style={{ transform: `scale(${scaleButton})` }}
+            // onClick={() => {
+            //   setScaleButton(1.2);
+            //   setTimeout(() => setScaleButton(1), 300);
+            // }}
+          >
+            <p className="z-50 mix-blend-difference text-white">
+              Noah Guardiola
+            </p>
+          </FillFrame>
+        </div>
       </main>
       {/* <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center"></footer> */}
     </div>
