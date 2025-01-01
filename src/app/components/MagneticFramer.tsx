@@ -8,13 +8,7 @@ export default function Framer({ children, className }) {
   const ref = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const mousePosition = useMousePosition();
-  const {
-    setBallSize,
-    setBallText,
-    setCursorBall,
-    setBallPos,
-    setBlockBallPos,
-  } = useCursorBall();
+  const { setBallSize, setBallText, setBlockBallPos } = useCursorBall();
 
   const handleMouse = () => {
     const { height, width, left, top } = ref.current.getBoundingClientRect();
