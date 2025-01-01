@@ -1,4 +1,4 @@
-function calculateSpeed(
+export function calculateSpeed(
   mousePosition: { x: number; y: number },
   prevPosRef: any,
   prevTimeRef: any

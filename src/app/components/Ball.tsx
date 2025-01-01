@@ -38,11 +38,8 @@ export default function Ball({
       animate={
         animation.current.block
           ? {
-              // TO DO: FIX FOR BLOCK BALL ON HOVER FILL FRAME
-              // left: ballPos.x + (mousePosition.x - ballBlockPos.x) * sticky,
-              // top: ballPos.y + (mousePosition.y - ballBlockPos.y) * sticky,
-              left: ballPos.x,
-              top: ballPos.y,
+              left: ballPos.x + (mousePosition.x - ballBlockPos.x) * sticky,
+              top: ballPos.y + (mousePosition.y - ballBlockPos.y) * sticky,
             }
           : {
               left: ballPos.x,
@@ -56,21 +53,17 @@ export default function Ball({
       }}
     >
       <motion.div
-        // className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full absolute"
         className={`${
           text === undefined
-            ? "bg-[#2A1F2D] overflow-hidden opacity-1"
+            ? "bg-[#F00] overflow-hidden opacity-1"
             : "flex items-center justify-center overflow-hidden "
         }  absolute rounded-full`}
         animate={
           !animation.current.block
             ? {
                 scale: ballScale,
-                // borderRadius: ballRounded ? "50%" : "50%",
-                //   width: cursorBall ? ballSize.size - speed + "px" : 0,
-                width: cursorBall ? ballSize.size * (1 - speed) + "px" : 0,
-                //   height: cursorBall ? ballSize.size - speed + "px" : 0,
-                height: cursorBall ? ballSize.size * (1 - speed) + "px" : 0,
+                width: ballSize.size,
+                height: ballSize.size,
               }
             : {
                 scale: ballScale,

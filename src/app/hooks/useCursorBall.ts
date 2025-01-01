@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { BallAnimationProps } from "../interfaces/BallAnimation";
+import { calculateSpeed } from "../utils";
+import { u } from "framer-motion/client";
 import { useCursorBallContext } from "../contexts/CursorBallContext";
 import useMouseClick from "./listeners/useMouseClick";
 import useMousePosition from "./listeners/useMousePosition";
@@ -40,6 +42,12 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   }, [isLeftClick]);
 
+  useEffect(() => {
+    if (cursorBallCtx)
+      setBallSizeCtx({ size: latestBallSizeRef.current, temp: true });
+    else setBallSizeCtx({ size: 0, temp: true });
+  }, [cursorBallCtx]);
+
   // Handle mouse position
   useEffect(() => {
     setBallPos({
@@ -50,8 +58,6 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
 
   // Handle mouse movement
   useEffect(() => {
-    const currentTime = Date.now(); // Current timestamp in milliseconds
-
     if (prevPosRef.current && prevTimeRef.current && !animation.current.block) {
       const currentSpeed = calculateSpeed(
         mousePosition,
@@ -59,7 +65,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
         prevTimeRef
       );
       setSpeed(currentSpeed);
-
+      setBallSize(latestBallSizeRef.current * (1 - currentSpeed), true);
       // Clear any existing timeout for resetting speed
       if (inactivityTimeoutRef.current) {
         clearTimeout(inactivityTimeoutRef.current);
@@ -73,7 +79,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
 
     // Update refs with current position and time
     prevPosRef.current = { x: mousePosition.x, y: mousePosition.y };
-    prevTimeRef.current = currentTime;
+    prevTimeRef.current = Date.now();
   }, [mousePosition]);
 
   // Animate ball method

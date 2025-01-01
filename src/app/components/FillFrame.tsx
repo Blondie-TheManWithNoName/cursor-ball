@@ -8,27 +8,11 @@ import useMousePosition from "../hooks/listeners/useMousePosition";
 export default function FillFrame({ children, className, onClick, style }) { 
   const refFrame = useRef(null);
   const refWrapper = useRef(null);
-  // const [isHovered, setIsHovered] = useState(false);
   const isHoveredRef = useRef(false);
-  const [showBall, setShowBall] = useState(false); // State to control the delayed display
   const [dynamicScale, setDynamicScale] = useState(1);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const { setBlockBallPos, animateBall, setBallSize, setBallScale } = useCursorBall();
   const { ballBlockPos, ballPos, ballSize, latestBallSizeRef } = useCursorBallContext();
-
-  // useEffect(() => {
-  //   if (isHoveredRef.current && refFrame.current) {
-  //     // Calculate dynamic scale
-  //     console.log("HOLA")
-
-  //     const { width, height, left, top } = refFrame.current.getBoundingClientRect();
-  //     setHoverPos({ x: ballPos.x - left, y: ballPos.y - top });
-  //     const baseSize = 20; // Base size of the black ball (diameter, in pixels)
-  //     const maxScale = Math.max(width * 2, height * 2) / baseSize;
-  //     console.log(maxScale)
-  //     setDynamicScale(maxScale);
-  //   }
-  // }, [isHoveredRef.current]);
 
   useEffect(() => {
     const { width, height, left, top } =
@@ -42,7 +26,6 @@ export default function FillFrame({ children, className, onClick, style }) {
     if (isHoveredRef.current && refFrame.current) {
       // Delay showing the ball
       timer = setTimeout(() => {
-        setShowBall(true);
         const { width, height, left, top } =
         refFrame.current.getBoundingClientRect();
       setHoverPos({ x: ballPos.x - left, y: ballPos.y - top });
@@ -62,7 +45,6 @@ export default function FillFrame({ children, className, onClick, style }) {
             });
           
       clearTimeout(timer);
-      setShowBall(false); // Hide the ball when not hovered
     }
     return () => clearTimeout(timer); // Cleanup timeout
   }, [isHoveredRef.current]);
