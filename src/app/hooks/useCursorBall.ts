@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { s } from "framer-motion/client";
+import { BallAnimationProps } from "../interfaces/BallAnimation";
 import { useCursorBallContext } from "../contexts/CursorBallContext";
 import useMouseClick from "./listeners/useMouseClick";
 import useMousePosition from "./listeners/useMousePosition";
@@ -21,8 +21,6 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     ballBlockPos: ballBlockPosCtx,
     setBallBlockPos: setBallBlockPosCtx,
     latestBallSizeRef,
-    ballRounded: ballRoundedCtx,
-    setBallRounded: setBallRoundedCtx,
     ballScale: ballScaleCtx,
     setBallScale: setBallScaleCtx,
   } = useCursorBallContext();
@@ -33,6 +31,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
   const prevTimeRef = useRef<number | null>(null);
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Handle left click
   useEffect(() => {
     if (isLeftClick) {
       setBallSizeCtx({ size: latestBallSizeRef.current * 1.25, temp: true });
@@ -41,38 +40,24 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   }, [isLeftClick]);
 
+  // Handle mouse position
   useEffect(() => {
     setBallPos({
       x: mousePosition.x,
       y: mousePosition.y, // - (latestBallSizeRef.current > 50 ? 10 : 0),
     });
   }, [mousePosition]);
-  // Define maximum squared distance and speed cap
-  const maxDistanceSquared = 3000; //10000; // e.g., max distance of 500 pixels
-  const maxSpeed = 0.75; // Maximum speed cap
 
+  // Handle mouse movement
   useEffect(() => {
     const currentTime = Date.now(); // Current timestamp in milliseconds
 
     if (prevPosRef.current && prevTimeRef.current && !animation.current.block) {
-      // Calculate squared distance between current and previous positions
-      const dx = mousePosition.x - prevPosRef.current.x;
-      const dy = mousePosition.y - prevPosRef.current.y;
-      // const distanceSquared = dx * dx + dy * dy; // Squared distance
-      const distanceSquared = Math.sqrt(dx * dx + dy * dy); // Euclidean distance
-
-      // Calculate time difference in seconds
-      const timeDiff = (currentTime - prevTimeRef.current) / 1000;
-
-      // Calculate speed: squared distance / time
-      let currentSpeed = timeDiff > 0 ? distanceSquared / timeDiff : 0;
-
-      // Normalize speed to a range of [0, maxSpeed] and cap it
-      currentSpeed = Math.min(
-        maxSpeed,
-        (currentSpeed / maxDistanceSquared) * maxSpeed
+      const currentSpeed = calculateSpeed(
+        mousePosition,
+        prevPosRef,
+        prevTimeRef
       );
-
       setSpeed(currentSpeed);
 
       // Clear any existing timeout for resetting speed
@@ -91,17 +76,9 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     prevTimeRef.current = currentTime;
   }, [mousePosition]);
 
-  const animateBall = async ({
-    size,
-    duration,
-    pos,
-    text,
-  }: {
-    size?: number | undefined;
-    duration: number | undefined;
-    pos?: { x: number; y: number } | undefined;
-    text?: string | undefined;
-  }) => {
+  // Animate ball method
+  const animateBall = async (props: BallAnimationProps) => {
+    const { size, duration, pos, text } = props;
     {
       if (!cursorBallCtx) setCursorBall(true);
       animation.current = {
@@ -133,6 +110,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
+  // Set ball size method
   const setBallSize = (size: number, temp: boolean = false) => {
     if (!animation.current.state) {
       setBallSizeCtx({ size, temp: temp });
@@ -142,10 +120,12 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
+  // Set ball scale method
   const setBallScale = (scale: number) => {
     if (!animation.current.state) setBallScaleCtx(scale);
   };
 
+  // Size animation method
   const sizeAnimation = (size: number, moveDuration: number = 0.15) => {
     if (!animation.current.state) {
       const currentSize = latestBallSizeRef.current;
@@ -156,6 +136,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
+  // Set ball position method
   const setBallPos = (pos: { x: number; y: number }) => {
     if (!animation.current.block) setBallPosCtx(pos);
     else {
@@ -167,6 +148,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
+  // Set ball position method
   const setBlockBallPos = (block: boolean, pos?: { x: number; y: number }) => {
     animation.current = { ...animation.current, block };
     if (pos) {
@@ -175,11 +157,13 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
+  // Set ball text method
   const setBallText = (text: string) => {
     if (!animation.current.state) setBallTextCtx(text);
     else animation.current = { ...animation.current, prevText: text };
   };
 
+  // Set cursor ball method
   const setCursorBall = (cursorBall: boolean) => {
     if (!animation.current.state) setCursorBallCtx(cursorBall);
   };
@@ -194,6 +178,5 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     speed,
     sizeAnimation,
     setBallScale,
-    // setBallRounded,
   };
 };

@@ -5,3 +5,10 @@ export interface BallAnimation {
   prevText: string;
   prevPos?: { x: number; y: number };
 }
+
+export interface BallAnimationProps {
+  size?: number;
+  duration: number;
+  pos?: { x: number; y: number };
+  text?: string;
+}
