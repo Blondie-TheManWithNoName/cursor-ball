@@ -20,6 +20,11 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     animation,
     ballBlockPos: ballBlockPosCtx,
     setBallBlockPos: setBallBlockPosCtx,
+    latestBallSizeRef,
+    ballRounded: ballRoundedCtx,
+    setBallRounded: setBallRoundedCtx,
+    ballScale: ballScaleCtx,
+    setBallScale: setBallScaleCtx,
   } = useCursorBallContext();
   const mousePosition = useMousePosition();
   const isLeftClick = useMouseClick();
@@ -30,16 +35,16 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
 
   useEffect(() => {
     if (isLeftClick) {
-      setBallSizeCtx(ballSizeCtx + 5);
+      setBallSizeCtx({ size: latestBallSizeRef.current * 1.25, temp: true });
     } else {
-      setBallSizeCtx(ballSizeCtx - 5);
+      setBallSizeCtx({ size: latestBallSizeRef.current, temp: true });
     }
   }, [isLeftClick]);
 
   useEffect(() => {
     setBallPos({
       x: mousePosition.x,
-      y: mousePosition.y - (ballSizeCtx > 50 ? 10 : 0),
+      y: mousePosition.y, // - (latestBallSizeRef.current > 50 ? 10 : 0),
     });
   }, [mousePosition]);
   // Define maximum squared distance and speed cap
@@ -99,24 +104,21 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
   }) => {
     {
       if (!cursorBallCtx) setCursorBall(true);
-
       animation.current = {
         state: true,
-        prevSize: ballSizeCtx,
+        prevSize: ballSizeCtx.size,
         prevText: ballTextCtx,
         block: pos ? true : false,
       };
-
       if (size) {
-        setBallSizeCtx(size);
+        setBallSizeCtx({ size, temp: true });
         setTextBallSizeCtx(size);
       }
       if (pos) setBallPosCtx(pos);
       if (text) setBallTextCtx(text);
-
       setTimeout(() => {
         if (animation.current.prevSize !== 0) {
-          setBallSizeCtx(animation.current.prevSize);
+          setBallSizeCtx({ size: animation.current.prevSize, temp: true });
           setTextBallSizeCtx(animation.current.prevSize);
         }
         if (animation.current.prevText !== "")
@@ -131,23 +133,26 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     }
   };
 
-  const setBallSize = (size: number) => {
+  const setBallSize = (size: number, temp: boolean = false) => {
     if (!animation.current.state) {
-      setBallSizeCtx(size);
+      setBallSizeCtx({ size, temp: temp });
       setTextBallSizeCtx(size);
     } else {
       animation.current = { ...animation.current, prevSize: size };
     }
   };
 
-  const sizeAnimation = (size: number) => {
-    console.log("CALLED");
+  const setBallScale = (scale: number) => {
+    if (!animation.current.state) setBallScaleCtx(scale);
+  };
+
+  const sizeAnimation = (size: number, moveDuration: number = 0.15) => {
     if (!animation.current.state) {
-      const currentSize = ballSizeCtx;
-      setBallSize(ballSizeCtx + size);
+      const currentSize = latestBallSizeRef.current;
+      setBallSizeCtx({ size: currentSize * 1.05, temp: true });
       setTimeout(() => {
-        setBallSize(currentSize);
-      }, 100);
+        setBallSizeCtx({ size: currentSize, temp: true });
+      }, moveDuration * 1000);
     }
   };
 
@@ -188,5 +193,7 @@ export const useCursorBall = ({ sticky = 0.2 } = { sticky: 0.2 }) => {
     setBlockBallPos,
     speed,
     sizeAnimation,
+    setBallScale,
+    // setBallRounded,
   };
 };
